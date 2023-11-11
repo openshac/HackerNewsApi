@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace HackerNewsApi
 {
@@ -13,13 +11,13 @@ namespace HackerNewsApi
         private readonly IMemoryCache _cache;
         private readonly HttpClient _httpClient;
         private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
-        private CacheSettings _cacheSettings;
+        private readonly CacheSettings _cacheSettings;
 
-        public HackerNewsService(IMemoryCache cache, IOptions<CacheSettings> cacheSettings, HttpClient httpClient)
+        public HackerNewsService(IMemoryCache cache, CacheSettings cacheSettings, HttpClient httpClient)
         {
             _cache = cache;
             _httpClient = httpClient;
-            _cacheSettings = cacheSettings.Value;
+            _cacheSettings = cacheSettings;
         }
 
         public async Task<IEnumerable<int>> GetBestStoriesIdsAsync()
@@ -33,12 +31,6 @@ namespace HackerNewsApi
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsAsync<IEnumerable<int>>();
             });
-            
-            //string bestStoriesUrl = "https://hacker-news.firebaseio.com/v0/beststories.json";
-            //var response = await _httpClient.GetAsync(bestStoriesUrl);
-            //response.EnsureSuccessStatusCode();
-            //var ids = await response.Content.ReadAsAsync<IEnumerable<int>>();
-            //return ids;
         }
 
         public async Task<Story> GetStoryDetailsAsync(int id)
@@ -52,14 +44,7 @@ namespace HackerNewsApi
                 var response = await _httpClient.GetAsync(storyUrl);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsAsync<Story>();
-
             });
-
-            //    string storyUrl = $"https://hacker-news.firebaseio.com/v0/item/{id}.json";
-            //var response = await _httpClient.GetAsync(storyUrl);
-            //response.EnsureSuccessStatusCode();
-            //var story = await response.Content.ReadAsAsync<Story>();
-            //return story;
         }
     }
 }
